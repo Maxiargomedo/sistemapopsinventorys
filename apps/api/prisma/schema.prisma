@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  fullName  String
+  password  String
+  role      Role     @default(VENDEDOR)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+  purchaseInvoices PurchaseInvoice[]
+}
+
+enum Role {
+  ADMIN
+  VENDEDOR
+  JEFE_LOCAL
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isSellable  Boolean  @default(true)
+  isStockItem Boolean  @default(false)
+  imageUrl    String?
+  // Almacenar imagen en la base de datos (opcional)
+  imageData   Bytes?
+  imageType   String?
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  typeId      String?
+  type        ProductType? @relation(fields: [typeId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  variants    ProductVariant[]
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  name      String
+  price     Decimal
+  cost      Decimal?
+  active    Boolean  @default(true)
+  quantity  Decimal  @default(0)
+  orderItems OrderItem[]
+  adjustments InventoryAdjustment[]
+}
+
+model Category {
+  id       String   @id @default(uuid())
+  name     String   @unique
+  products Product[]
+}
+
+// Tipos de producto (Comida, Bebidas, Alcohol, etc.)
+model ProductType {
+  id       String   @id @default(uuid())
+  name     String   @unique
+  products Product[]
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  number    Int      @unique @default(autoincrement())
+  channel   Channel
+  status    OrderStatus
+  subtotal  Decimal  @default(0)
+  tax       Decimal  @default(0)
+  tip       Decimal  @default(0)
+  discount  Decimal  @default(0)
+  total     Decimal  @default(0)
+  openedAt  DateTime @default(now())
+  closedAt  DateTime?
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  location  String?
+  items     OrderItem[]
+  payments  Payment[]
+}
+
+enum Channel {
+  SALON
+  PARA_LLEVAR
+  DELIVERY
+}
+
+enum OrderStatus {
+  PENDIENTE
+  PREPARACION
+  LISTO
+  ENTREGADO
+  ANULADO
+}
+
+model OrderItem {
+  id               String         @id @default(uuid())
+  order            Order          @relation(fields: [orderId], references: [id])
+  orderId          String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String
+  description      String
+  qty              Decimal
+  unitPrice        Decimal
+  discount         Decimal  @default(0)
+  total            Decimal
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  method    PaymentMethod
+  amount    Decimal
+  receivedAt DateTime @default(now())
+}
+
+enum PaymentMethod {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+  QR
+  OTRO
+}
+
+// Ajustes de inventario para registrar mermas/pérdidas u otros cambios manuales
+model InventoryAdjustment {
+  id               String         @id @default(uuid())
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String
+  type             AdjustmentType
+  quantity         Decimal // positivo o negativo según el tipo
+  reason           String?
+  createdAt        DateTime @default(now())
+}
+
+enum AdjustmentType {
+  MERMA
+  ROBO
+  AJUSTE
+}
+
+// Gastos para informes financieros (arriendo, servicios, sueldos, compras, etc.)
+model Expense {
+  id          String   @id @default(uuid())
+  description String
+  amount      Decimal
+  occurredAt  DateTime @default(now())
+  category    String?
+  createdAt   DateTime @default(now())
+}
+
+// Facturas de compra locales (respaldo con archivo adjunto: imagen o PDF)
+model PurchaseInvoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String
+  companyName   String
+  invoiceDate   DateTime @default(now())
+  uploadedAt    DateTime @default(now())
+  total         Decimal  @default(0)
+  fileData      Bytes
+  fileType      String
+  fileName      String?
+  createdById   String?
+  createdBy     User?    @relation(fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
+}
+
+// Configuración general del sistema (singleton)
+model Settings {
+  id             String   @id
+  companyName    String?
+  rut            String?
+  address        String?
+  phone          String?
+  email          String?
+  logoData       Bytes?
+  logoType       String?
+  receiptMessage String?
+  currency       String?  @default("CLP")
+  dateTimeFormat String?  @default("DD/MM/YYYY HH:mm")
+  taxName        String?  @default("IVA")
+  taxRate        Decimal  @default(0)
+  documentType   String?
+  defaultPrinter String?
+  autoCopies     Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
