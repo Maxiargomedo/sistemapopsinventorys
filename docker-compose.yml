@@ -27,6 +27,8 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER:-pos}:${POSTGRES_PASSWORD:-pospass}@db:5432/${POSTGRES_DB:-posdb}?schema=public
       JWT_SECRET: ${JWT_SECRET:-change_me}
+      # Comma-separated origins, e.g., https://app.example.com,https://admin.example.com
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
     # No host port binding; Dokploy will route internally
 
   web:
