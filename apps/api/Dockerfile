@@ -24,7 +24,7 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ## Runtime deps for Prisma on Alpine
-RUN apk add --no-cache dumb-init openssl libc6-compat ca-certificates
+RUN apk add --no-cache dumb-init openssl libc6-compat ca-certificates netcat-openbsd
 # Copy root package manifests for potential workspace resolution (not strictly required)
 COPY package*.json ./
 COPY apps/api/package.json ./apps/api/package.json

@@ -13,6 +13,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    restart: unless-stopped
 
   api:
     build:
@@ -29,6 +30,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change_me}
       # Comma-separated origins, e.g., https://app.example.com,https://admin.example.com
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+    restart: unless-stopped
     # No host port binding; Dokploy will route internally
 
   web:
@@ -45,6 +47,7 @@ services:
       PORT: 3000
       # Point Next.js frontend to the API internal DNS name via Dokploy network or Compose network
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:4000}
+    restart: unless-stopped
     # No host port binding; Dokploy will expose via domain/ingress
 
 volumes:
