@@ -38,6 +38,8 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:4000}
     container_name: pos_web
     depends_on:
       - api
@@ -45,7 +47,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       # Point Next.js frontend to the API internal DNS name via Dokploy network or Compose network
-      NEXT_PUBLIC_API_URL: http://api:4000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:4000}
     ports:
       - "3000:3000"
 

@@ -17,6 +17,9 @@ RUN npm ci --include=dev
 FROM deps AS build
 COPY . .
 WORKDIR /app/apps/web
+# Allow overriding API URL at build time for Next.js
+ARG NEXT_PUBLIC_API_URL=http://api:4000
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 # Build Next.js app (standalone output)
 RUN npm run build
 
