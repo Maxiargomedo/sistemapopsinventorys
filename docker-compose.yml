@@ -13,8 +13,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-    ports:
-      - "5432:5432"
 
   api:
     build:
@@ -29,8 +27,7 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER:-pos}:${POSTGRES_PASSWORD:-pospass}@db:5432/${POSTGRES_DB:-posdb}?schema=public
       JWT_SECRET: ${JWT_SECRET:-change_me}
-    ports:
-      - "4000:4000"
+    # No host port binding; Dokploy will route internally
 
   web:
     build:
@@ -46,8 +43,7 @@ services:
       PORT: 3000
       # Point Next.js frontend to the API internal DNS name via Dokploy network or Compose network
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:4000}
-    ports:
-      - "3000:3000"
+    # No host port binding; Dokploy will expose via domain/ingress
 
 volumes:
   db_data:
