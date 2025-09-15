@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatCLP } from "@/lib/format";
 import { useAuth } from "@/components/auth-context";
@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export default function InventarioListPage() {
+function InventarioListInner() {
   const { user, ready, fetchWithAuth } = useAuth() as any;
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -165,6 +165,14 @@ export default function InventarioListPage() {
         />
       )}
     </main>
+  );
+}
+
+export default function InventarioListPage() {
+  return (
+    <Suspense fallback={<main><p className="mt-4">Cargando...</p></main>}>
+      <InventarioListInner />
+    </Suspense>
   );
 }
 
