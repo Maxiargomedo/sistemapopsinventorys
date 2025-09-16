@@ -14,6 +14,8 @@ services:
       timeout: 3s
       retries: 20
     restart: unless-stopped
+    networks:
+      - appnet
 
   api:
     build:
@@ -26,11 +28,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-pos}:${POSTGRES_PASSWORD:-pospass}@db:5432/${POSTGRES_DB:-posdb}?schema=public
+      # Use explicit container_name for DB host to avoid DNS quirks in some environments
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pos}:${POSTGRES_PASSWORD:-pospass}@pos_db:5432/${POSTGRES_DB:-posdb}?schema=public
       JWT_SECRET: ${JWT_SECRET:-change_me}
       # Comma-separated origins, e.g., https://app.example.com,https://admin.example.com
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
     restart: unless-stopped
+    networks:
+      - appnet
     # No host port binding; Dokploy will route internally
 
   web:
@@ -48,7 +53,14 @@ services:
       # Point Next.js frontend to the API internal DNS name via Dokploy network or Compose network
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:4000}
     restart: unless-stopped
+    networks:
+      - appnet
     # No host port binding; Dokploy will expose via domain/ingress
 
 volumes:
   db_data:
+
+
+networks:
+  appnet:
+    driver: bridge
