@@ -1,5 +1,5 @@
 "use client";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, DEMO_MODE } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
@@ -26,9 +26,45 @@ export default function LoginPage() {
     }
   }
 
+  function fillDemo(demoEmail: string) {
+    setEmail(demoEmail);
+    setPassword("demo1234");
+  }
+
   return (
     <main className="max-w-md mx-auto">
       <h1 className="mb-4">Iniciar sesión</h1>
+
+      {DEMO_MODE && (
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm">
+          <div className="font-semibold text-blue-800 mb-2">🎮 Modo demostración</div>
+          <p className="text-blue-700 mb-3">
+            Este sistema funciona en modo demo. Usa cualquiera de estas cuentas para explorar:
+          </p>
+          <div className="grid gap-2">
+            <button type="button" onClick={() => fillDemo("admin@demo.com")} className="flex items-center justify-between rounded border border-blue-300 bg-white px-3 py-2 hover:bg-blue-100 transition-colors text-left">
+              <div>
+                <span className="font-medium text-blue-900">admin@demo.com</span>
+                <span className="ml-2 text-xs text-blue-600">(Administrador – acceso completo)</span>
+              </div>
+            </button>
+            <button type="button" onClick={() => fillDemo("jefe@demo.com")} className="flex items-center justify-between rounded border border-blue-300 bg-white px-3 py-2 hover:bg-blue-100 transition-colors text-left">
+              <div>
+                <span className="font-medium text-blue-900">jefe@demo.com</span>
+                <span className="ml-2 text-xs text-blue-600">(Jefe Local – inventario y ventas)</span>
+              </div>
+            </button>
+            <button type="button" onClick={() => fillDemo("vendedor@demo.com")} className="flex items-center justify-between rounded border border-blue-300 bg-white px-3 py-2 hover:bg-blue-100 transition-colors text-left">
+              <div>
+                <span className="font-medium text-blue-900">vendedor@demo.com</span>
+                <span className="ml-2 text-xs text-blue-600">(Vendedor – punto de venta)</span>
+              </div>
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-blue-600">Contraseña para todas: <code className="bg-blue-100 px-1 rounded">demo1234</code></p>
+        </div>
+      )}
+
       <form onSubmit={onSubmit} className="grid gap-3">
         <input placeholder="Correo" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} />
         <div className="relative">

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, apiFetch } from "@/components/auth-context";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -37,11 +37,11 @@ export default function DistConfigPage() {
     if (user.role !== 'ADMIN') { window.location.href = "/pos"; return; }
     (async () => {
       try {
-        const res = await fetch(`${API}/settings`);
+        const res = await apiFetch(`${API}/settings`);
         const json = await res.json();
         setS(json);
         // load types as well
-        const t = await fetch(`${API}/product-types`).then(r=>r.json());
+        const t = await apiFetch(`${API}/product-types`).then(r=>r.json());
         setTypes(t);
       } finally {
         setLoading(false);

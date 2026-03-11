@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatCLP } from "@/lib/format";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, apiFetch } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
 
 type Product = {
@@ -61,14 +61,14 @@ export default function POSPage() {
   const { data: products, isLoading, error } = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: async () => {
-      const res = await fetch(`${api}/products`);
+      const res = await apiFetch(`${api}/products`);
       if (!res.ok) throw new Error("Error al cargar productos");
       return res.json();
     },
   });
   const { data: types } = useQuery<{id:string; name:string}[]>({
     queryKey: ["product-types"],
-    queryFn: async () => (await fetch(`${api}/product-types`)).json(),
+    queryFn: async () => (await apiFetch(`${api}/product-types`)).json(),
   });
   const [activeTypeId, setActiveTypeId] = useState<string | null>(null);
   const [activeTypeName, setActiveTypeName] = useState<string | null>(null);

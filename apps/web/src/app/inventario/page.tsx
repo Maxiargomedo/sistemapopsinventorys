@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatCLP } from "@/lib/format";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, apiFetch } from "@/components/auth-context";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -33,7 +33,7 @@ function InventarioListInner() {
   }, [ready, user, router]);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["inv-products"],
-    queryFn: async () => (await fetch(`${API}/products`)).json(),
+    queryFn: async () => (await apiFetch(`${API}/products`)).json(),
   });
 
   useEffect(() => {

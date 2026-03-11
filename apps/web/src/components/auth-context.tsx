@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { DEMO_MODE, demoFetch } from "@/lib/demo-fetch";
 
 type User = { id: string; email: string; fullName: string; role: "ADMIN"|"VENDEDOR"|"JEFE_LOCAL" };
 type AuthState = { token: string | null; user: User | null };
@@ -15,6 +16,14 @@ const AuthCtx = createContext<{
 }>({ token: null, user: null, ready: false, async login() {}, async register() {}, logout() {}, fetchWithAuth: fetch });
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+/** Choose the right fetch: demo interceptor when there is no real API */
+function apiFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
+  if (DEMO_MODE) return demoFetch(input, init);
+  return fetch(input, init);
+}
+
+export { DEMO_MODE, apiFetch };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Estado inicial neutro para que SSR y primer render cliente coincidan
@@ -73,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.token, state.user]);
 
   async function login(email: string, password: string, remember?: boolean) {
-    const res = await fetch(`${API}/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
+    const res = await apiFetch(`${API}/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
     if (!res.ok) throw new Error("Credenciales inválidas");
     const data = await res.json();
     setState({ token: data.access_token, user: data.user });
@@ -93,11 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function register(data: { email: string; password: string; confirmPassword: string; fullName: string }) {
-    const res = await fetch(`${API}/auth/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    const res = await apiFetch(`${API}/auth/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
     if (!res.ok) throw new Error("No se pudo registrar");
   }
 
   async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
+    if (DEMO_MODE) return demoFetch(input, init);
     const headers = new Headers(init?.headers || {});
     if (state.token) headers.set("Authorization", `Bearer ${state.token}`);
     const res = await fetch(input, { ...init, headers });

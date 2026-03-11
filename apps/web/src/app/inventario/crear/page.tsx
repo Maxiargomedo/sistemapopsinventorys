@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, apiFetch } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -47,8 +47,8 @@ export default function InventarioCreatePage() {
     (async () => {
       try {
         const [tRes, cRes] = await Promise.all([
-          fetch(`${API}/product-types`),
-          fetch(`${API}/categories`),
+          apiFetch(`${API}/product-types`),
+          apiFetch(`${API}/categories`),
         ]);
         setTypes(await tRes.json());
         setCategories(await cRes.json());

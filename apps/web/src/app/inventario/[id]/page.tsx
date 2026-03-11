@@ -1,7 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, apiFetch } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -37,7 +37,7 @@ export default function InventarioDetailPage() {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const res = await fetch(`${API}/products/${id}`);
+      const res = await apiFetch(`${API}/products/${id}`);
       const json = await res.json();
       setData(json);
       setForm({

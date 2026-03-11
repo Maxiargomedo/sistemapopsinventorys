@@ -1,7 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth, apiFetch } from "@/components/auth-context";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -30,7 +30,7 @@ export default function AdminProductsPage() {
 
   const { data, isLoading, error } = useQuery<Product[]>({
     queryKey: ["admin-products"],
-    queryFn: async () => (await fetch(`${API}/products`)).json(),
+    queryFn: async () => (await apiFetch(`${API}/products`)).json(),
   });
 
   const createMut = useMutation({
